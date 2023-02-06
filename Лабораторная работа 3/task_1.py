@@ -1,7 +1,16 @@
 class Book:
     """ Базовый класс книги. """
     def __init__(self, name: str, author: str):
+        """Конструктор для базового класса Book"""
+        if not isinstance(name, str):
+            raise TypeError("Название книги должно быть типа str")
+        if name == "":
+            raise ValueError("У книги должно быть название")
         self._name = name
+        if not isinstance(author, str):
+            raise TypeError("Имя автора должно быть типа str")
+        if author == "":
+            raise ValueError("У автора должно быть имя")
         self._author = author
 
     @property
