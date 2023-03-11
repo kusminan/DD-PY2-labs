@@ -1,56 +1,12 @@
-class Room:
-    """Базовый класс Комната"""
-
-    def __init__(self):
-        """
-        Конструктор для объекта Room создает комнату 10х10 кв.м.
-        :x_line: длина стен комнаты по иксу
-        :y_line: длина стен комнаты по игрику
-
-        Пример: room1 = Room()
-        """
-        self._x_line = [x for x in range(0, 11)]
-        self._y_line = [y for y in range(0, 11)]
-
-    @property
-    def x_line(self) -> list:
-        """
-        Геттер типа read-only для атрибута x_line
-        Пример: self.x_line
-        """
-        return self._x_line
-
-    @property
-    def y_line(self) -> list:
-        """
-        Геттер типа read-only для атрибута y_line
-        Пример: self.y_line
-        """
-        return self._y_line
-
-    def __str__(self):
-        """
-        Магический метод __str__, который выводит в консоли размер комнаты в понятной для пользователя форме
-        Пример: room1.__str__()
-        """
-        print(f"Размер комнаты: {self.x_line[-1]}x{self.y_line[-1]} кв.м.")
-
-    def __repr__(self) -> str:
-        """
-        Магический метод __repr__, который возвращает атрибуты класса Room в более читабельном виде
-        Пример: room1.__repr__()
-        """
-        return f"{self.__class__.__name__}(x_line={self.x_line!r}, y_line={self.x_line}"
-
-class A_Living_Thing(Room):
+class A_Living_Thing():
     """Дочерний класс живое существо в комнате"""
     def __init__(self, kind: str, x_cor=1, y_cor=1):
         """
         Конструктор для объекта класса A_Living_Things с дополнительными атрибутами.
         Объект класса перенимает размер комнаты.
         :kind: тип живого существа
-        :x_cor: местонахождение живого существа в комнате по координате икс
-        :y_cor: местонахождение живого существа в комнате по координате игрик
+        :x_cor: местонахождение живого существа по координате x
+        :y_cor: местонахождение живого существа по координате y
         :coordinates: координаты местонахождение живого существа в комнате
         Пример: alive1 = A_Living_Thing("человек")
         """
@@ -91,8 +47,6 @@ class A_Living_Thing(Room):
         """
         if not isinstance(x_cor, int):
             raise TypeError("Координаты должны быть типа int")
-        if x_cor not in self.x_line[1:-1]:
-            raise ValueError("Можно перемещаться по комнате только по координатам от 1 до 9 по x и y")
         self._x_cor = x_cor
 
     @property
@@ -111,8 +65,6 @@ class A_Living_Thing(Room):
         """
         if not isinstance(y_cor, int):
             raise TypeError("Координаты должны быть типа int")
-        if y_cor not in self.y_line[1:-1]:
-            raise ValueError("Можно перемещаться по комнате только по координатам от 1 до 9 по x и y")
         self._y_cor = y_cor
 
     @property
@@ -124,7 +76,7 @@ class A_Living_Thing(Room):
         """
         return self._coordinates
 
-    def move_in_the_room(self, new_x_cor=None, new_y_cor=None) -> None:
+    def move_around(self, new_x_cor=None, new_y_cor=None) -> None:
         """
         Метод изменяет местонахождение живого существа в комнате.
         Пример: alive1.move_in_the_room(5, 4)
@@ -140,12 +92,20 @@ class A_Living_Thing(Room):
             self.y_cor = new_y_cor
             self._coordinates[1] = self.y_cor
 
+    def where_am_i(self) -> None:
+        """"
+        Выводит в консоль местоположение живого существа. Не принимает никаких аргументов
+        Пример: alive1.where_am_i()
+        output: [1, 1]
+        """
+        print(self.coordinates)
+
     def __str__(self) -> None:
         """
         Метод выводить в консоли тип объекта класса A_Living_Thing
         Пример: alive1.__str__()
         """
-        print(f"Я живое существо типа{self._kind.title()}")
+        print(f"Я живое существо типа '{self._kind.title()}'")
 
     def __repr__(self) -> str:
         """
@@ -158,7 +118,7 @@ class A_Living_Thing(Room):
 
 class Person(A_Living_Thing):
     """
-    Базовый класс "Человек"
+    Дочерний класс "Человек"
     """
 
     def __init__(self, kind: str, name: str, age: int, sex: str):
@@ -197,7 +157,7 @@ class Person(A_Living_Thing):
         >> person1.change_name("Николай")
         """
         if not isinstance(new_name, str):
-            raise TypeError("Новое имея человека должно быть типа str")
+            raise TypeError("Новое имя человека должно быть типа str")
         if new_name == "":
             raise ValueError("У человека должно быть имя")
         self._name = new_name
@@ -225,6 +185,15 @@ class Person(A_Living_Thing):
         if not self._sex.__eq__("Мужской") or self._sex.__eq__("Женский"):
             raise ValueError("Пол человека может быть только мужским или женским")
         return self._sex
+
+    def where_am_i(self) -> None:
+        """
+        Метод выводит в консоль сообщение от человека о его местоположении. Не принимает никаких аргументов.
+        Метод перезагружается, для соблюдения логики: человек может сказать свое местоположение.
+        Пример: person1.where_am_i()
+        output: I am at [1, 1]
+        """
+        print(f"I am at {self.coordinates}")
 
     def __str__(self):
         """
@@ -256,11 +225,63 @@ class Person(A_Living_Thing):
         print(speach)
 
 
+class Dog(A_Living_Thing):
+    def __init__(self, kind: str, name: str, sex: str):
+        """
+                Конструктор для объекта "Собака"
+                Атрибуты name и sex сделаны непубличными, чтобы пользователь не мог поменять их вручную.
+                :name: имя собаки
+                :sex: пол собаки
+
+                Пример:
+                person1 = Person("Собака", "Джин", "Кабель")
+                """
+        super().__init__(kind)
+        self._name = name
+        self.name
+        self._sex = sex
+        self.sex
+
+    @property
+    def name(self) -> str:
+        """
+        Свойство возвращает имя собаки
+        Пример: self.name
+        """
+        if not isinstance(self._name, str):
+            raise TypeError("Имя собаки должно быть типа str")
+        if self._name == "":
+            raise ValueError("У собаки должно быть имя")
+        return self._name
+
+    @property
+    def sex(self):
+        """
+        Свойство геттер ипа read-only для атрибута sex.
+        Пример: person1.sex
+        """
+        if not isinstance(self._sex, str):
+            raise TypeError("Пол собаки должен быть типа str")
+        if not self._sex.__eq__("Кабель") or self._sex.__eq__("Сучка"):
+            raise ValueError("Собака может быть только Кабелём или Сучкой")
+        return self._sex
+
+    def where_am_i(self) -> None:
+        """
+        Метод выводит в консоли местоположение собаки, после того как она подаст голос. Метод не принимает аргументов.
+        Метод перезагружается, для соблюдения логики: собака не может сказать свое местоположение, но его можно понять
+        по ее лаю.
+        Пример: dog1.where_am_i()
+        output: Гав! Гав! Гав!
+        [1, 1]
+        """
+        print("Гав! Гав! Гав!")
+        print(self.coordinates)
+
 if __name__ == "__main__":
-    room1 = Room()
-    room1.__str__()
-    print(room1.__repr__())
-    person1 = Person("Человек", "Игорь", 18, "Мужской")
-    print(person1.coordinates)
-    person1.move_in_the_room(3, 9)
-    print(person1.coordinates)
+    person1 = Person("Человек", "Tim", 21, "Мужской")
+    person1.move_around(5, 6)
+    person1.where_am_i()
+    dog1 = Dog("Собака", "Джин", "Кабель")
+    dog1.where_am_i()
+    dog1.__str__()
